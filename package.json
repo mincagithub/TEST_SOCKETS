@@ -1,0 +1,24 @@
+{
+  "name": "zmq-bridge-demo",
+  "version": "1.0.0",
+  "description": "A demo of ultrafast trading connecting a web interface with MetaTrader 5",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --experimental-modules server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "zeromq",
+    "trading",
+    "metatrader",
+    "bridge"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
+    "zeromq": "^6.0.0-beta.16"
+  }
+}
