@@ -26,16 +26,39 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    .form-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #34495e;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
     #buy {
       background-color: #2ecc71;
       color: white;
       border: none;
-      padding: 20px 40px;
-      font-size: 24px;
+      padding: 15px 40px;
+      font-size: 20px;
       border-radius: 4px;
       cursor: pointer;
       transition: background-color 0.3s;
       margin: 20px 0;
+      width: 100%;
     }
     #buy:hover {
       background-color: #27ae60;
@@ -60,6 +83,12 @@
       color: #e74c3c;
       font-weight: bold;
     }
+    .param-block {
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -69,7 +98,45 @@
   </header>
 
   <div class="container">
-    <button id="buy">COMPRAR</button>
+    <div class="param-block">
+      <h2>Parámetros de la Orden</h2>
+      
+      <div class="form-group">
+        <label for="symbol">Par de Divisas:</label>
+        <select id="symbol">
+          <option value="EURUSD">EUR/USD</option>
+          <option value="GBPUSD">GBP/USD</option>
+          <option value="USDJPY">USD/JPY</option>
+          <option value="AUDUSD">AUD/USD</option>
+          <option value="USDCAD">USD/CAD</option>
+        </select>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="lotSize">Tamaño del Lote:</label>
+          <input type="number" id="lotSize" value="0.1" min="0.01" max="10" step="0.01">
+        </div>
+        
+        <div class="form-group">
+          <label for="stopLoss">Stop Loss (pips):</label>
+          <input type="number" id="stopLoss" value="50" min="5" max="500">
+        </div>
+        
+        <div class="form-group">
+          <label for="takeProfit">Take Profit (pips):</label>
+          <input type="number" id="takeProfit" value="100" min="5" max="500">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="comment">Comentario:</label>
+        <input type="text" id="comment" value="Orden Web ZMQ" maxlength="30">
+      </div>
+    </div>
+    
+    <button id="buy">ENVIAR ORDEN DE COMPRA</button>
+    
     <div id="log">
       <div class="log-entry">Esperando acción...</div>
     </div>
@@ -91,15 +158,26 @@
     buyButton.onclick = async () => {
       try {
         buyButton.disabled = true;
-        addLog(`🚀 Enviando orden de compra...`);
+        
+        // Recopilar los parámetros del formulario
+        const orderParams = {
+          symbol: document.getElementById('symbol').value,
+          lotSize: parseFloat(document.getElementById('lotSize').value),
+          stopLoss: parseInt(document.getElementById('stopLoss').value),
+          takeProfit: parseInt(document.getElementById('takeProfit').value),
+          comment: document.getElementById('comment').value
+        };
+        
+        addLog(`🚀 Enviando orden de compra para ${orderParams.symbol}...`);
         
         // Registrar tiempo de inicio
         const startTime = performance.now();
         
-        // Enviar petición al servidor (sin parámetros)
+        // Enviar petición al servidor con los parámetros
         const resp = await fetch('/buy', {
           method: 'POST',
-          headers: {'Content-Type':'application/json'}
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(orderParams)
         });
         
         const data = await resp.json();
@@ -107,7 +185,8 @@
         // Calcular latencia
         const latency = Math.round(performance.now() - startTime);
         
-        addLog(`✅ Bridge respondió: ${JSON.stringify(data)}`);
+        addLog(`✅ Parámetros enviados: ${JSON.stringify(orderParams)}`);
+        addLog(`✅ Respuesta del servidor: ${JSON.stringify(data)}`);
         addLog(`⏱️ Latencia HTTP: <span class="latency">${latency}ms</span>`);
         addLog(`🔄 Orden enviada a MetaTrader 5 via ZeroMQ`);
         

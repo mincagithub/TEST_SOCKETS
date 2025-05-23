@@ -18,10 +18,23 @@ async function startServer() {
 
     // 2️⃣ Endpoint HTTP para la orden de compra
     app.post('/buy', (req, res) => {
-      // Simplificado: solo enviamos el comando BUY sin parámetros adicionales
-      pub.send(['BUY', 'EXECUTE']);
-      console.log('Publicado BUY → EXECUTE');
-      res.json({ status: 'ok', timestamp: new Date().toISOString() });
+      // Obtenemos los parámetros de la orden del cuerpo de la solicitud
+      const orderParams = req.body;
+      
+      // Convertimos los parámetros a JSON para enviarlos por ZeroMQ
+      const orderParamsJSON = JSON.stringify(orderParams);
+      
+      // Enviamos el comando BUY con los parámetros
+      pub.send(['BUY', orderParamsJSON]);
+      
+      console.log('Publicado BUY →', orderParams);
+      
+      // Respondemos con estado OK y timestamp
+      res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        orderReceived: orderParams 
+      });
     });
 
     // 3️⃣ Arrancamos el servidor HTTP

@@ -1,18 +1,27 @@
 // test-buy.js
-// Script de prueba para enviar 5 mensajes "BUY" con intervalo de 1 segundo
+// Script de prueba para enviar órdenes de trading con parámetros
 import fetch from 'node-fetch';
 
-// Función para enviar un mensaje BUY a través de HTTP
+// Función para enviar una orden de trading a través de HTTP
 async function sendBuyMessage(count) {
   try {
-    console.log(`[${count}] Enviando mensaje BUY → EXECUTE`);
+    // Parámetros de la orden
+    const orderParams = {
+      symbol: 'EURUSD',
+      lotSize: 0.1,
+      stopLoss: 50,      // 50 pips de stop loss
+      takeProfit: 100,   // 100 pips de take profit
+      comment: `Test Order ${count}`
+    };
+    
+    console.log(`[${count}] Enviando orden de compra:`, orderParams);
     
     const response = await fetch('http://localhost:3001/buy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({})
+      body: JSON.stringify(orderParams)
     });
     
     const data = await response.json();
